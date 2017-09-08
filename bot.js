@@ -1,42 +1,48 @@
-var twit = reqire('twit');
+// dependencies ===========
+//TwitterLibrary & Api configuration file
+var twit = require('twit');
 var config = require('./config.js');
+
 
 var Twitter = new twit(config);
 
-var retweet = function() {
-  var params = {
-    q: '#BreakingNews #Breaking #News #EagleCreekFire, #Troutdale #evacuation #ColumbiaGorgeFire, ',
-    result_type:'recent, News',
-    lang:'en'
-  }
+// URL Search for most recent tweets on the '#EagleCreekFire' hashtag.
+var eagleCreekSearch = {q: "#EagleCreekFire #News", count:100, result_type: " recent"};
 
-  Twitter.get('search/tweets'. params, function(err, data){
-    //if No errors
-    if(!err){
-      //GrabID of Tweet to retweet
+// RetweetBot ====
+
+function retweet() {
+//Function finds latest Twet with the #EagleCreekFire hashtag then retweets.
+
+  Twitter.get('search/tweets', eagleCreekSearch, function(error, data){
+    //log out any errors and responses.
+  console.log(error, data);
+    //if No errors during search..
+    if(!error){
+      // then take ID of Tweet to be retweeted
       var retweetId = data.statuses[0].id_str;
       //tell TWITTER to retweetId
-      Twitter.post('statuses/retweet/:id', {
-        id: retweetId
-      }, function(err, response){
+      Twitter.post('statuses/retweet/' + retweetId, { }, function(error, response){
         if (response){
-          console.log('Retweeted!');
+          console.log('sucessfully Retweeted!');
         }
         // if there was an error while tweeting
-        if( err){
-          console.log('something went wrong while RETWEETING, duplicate maybe');
+        if(error){
+          console.log('something went wrong while RETWEETING, Error', error);
         }
 
-      });
+      })
     }
+    // if unable to Search.
     else {
-      console.log('something went wrong while searching');
+      console.log('something went wrong while SEARCHING.. Check hashtags', error);
     }
   });
 }
 
-//grab and retweet
+// Attempt to find to retweet as soon as program is running.
 retweet();
 
-//retweet every 50 main
-setInterval(retweet, 3000000);
+// ...and then every hour after that. Time here is in milliseconds, so
+// 1000 ms = 1 second, 1 sec * 60 = 1 min, 1 min * 60 = 1 hour --> 1000 * 60 * 60
+setInterval(retweet, 1000 * 60 * 60);
