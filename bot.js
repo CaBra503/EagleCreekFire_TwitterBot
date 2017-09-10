@@ -6,32 +6,32 @@ var config = require('./config.js');
 
 var Twitter = new twit(config);
 
-// URL Search for most recent tweets on the '#EagleCreekFire' hashtag.
-var eagleCreekSearch = {q: "#EagleCreekFire #News", count:100, result_type: " recent"};
+// Search variable. Currently query results EagleCreekFire, To change simply Rename the variable, from eaglecreeksearch, to yourTermSearch, and inside the query (Q: "change these aswell.")
+var eagleCreekSearch = {q: "#EagleCreekFire", count: 100, result_type: "recent"};
 
 // RetweetBot ====
 
 function retweet() {
-//Function finds latest Twet with the #EagleCreekFire hashtag then retweets.
+//Function finds latest Tweet with the #EagleCreekFire hashtag then retweets.
 
   Twitter.get('search/tweets', eagleCreekSearch, function(error, data){
     //log out any errors and responses.
-  console.log(error, data);
+    console.log(data);
     //if No errors during search..
     if(!error){
       // then take ID of Tweet to be retweeted
       var retweetId = data.statuses[0].id_str;
       //tell TWITTER to retweetId
-      Twitter.post('statuses/retweet/' + retweetId, { }, function(error, response){
+      Twitter.post('statuses/retweet/' + retweetId, function(error, response){
         if (response){
-          console.log('sucessfully Retweeted!');
+          console.log('sucessfully Retweeted!', data);
         }
         // if there was an error while tweeting
         if(error){
           console.log('something went wrong while RETWEETING, Error', error);
         }
 
-      })
+      });
     }
     // if unable to Search.
     else {
@@ -44,5 +44,5 @@ function retweet() {
 retweet();
 
 // ...and then every hour after that. Time here is in milliseconds, so
-// 1000 ms = 1 second, 1 sec * 60 = 1 min, 1 min * 60 = 1 hour --> 1000 * 60 * 60
-setInterval(retweet, 1000 * 60 * 60);
+// SetInterval set to 120 minutes, SetInterval takes miliseconds.
+setInterval(retweet, 360000);
